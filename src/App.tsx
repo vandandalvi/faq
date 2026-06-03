@@ -35,12 +35,6 @@ function ChevronDown({ open }: { open: boolean }) {
   );
 }
 
-function SparkOrb() {
-  return (
-    <div className="pointer-events-none absolute right-[22%] top-[-1.5rem] h-28 w-28 rounded-full border border-[#19d8e6]/20 bg-[radial-gradient(circle_at_center,rgba(25,216,230,0.26),rgba(25,216,230,0.05)_42%,transparent_72%)] blur-sm lg:right-[30%]" />
-  );
-}
-
 function AccordionItem({ item, defaultOpen = false }: { item: FAQItem; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
 
@@ -59,9 +53,6 @@ function AccordionItem({ item, defaultOpen = false }: { item: FAQItem; defaultOp
         aria-expanded={open}
       >
         <div className="space-y-2">
-          <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#7f9197]">
-            FAQ
-          </span>
           <p className="max-w-3xl text-[15px] font-medium leading-6 text-white sm:text-base">
             {item.question}
           </p>
@@ -126,7 +117,6 @@ export default function App() {
 
       <div className="relative z-10 mx-auto max-w-[1180px] px-4 pb-20 pt-8 sm:px-6 sm:pb-24 sm:pt-10 lg:px-8">
         <section className="relative overflow-hidden px-2 pb-4 pt-2 text-center sm:px-4">
-          <SparkOrb />
           <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.34em] text-[#88a6ad]">
             Help &amp; Support
           </p>
