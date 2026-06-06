@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import CategoryIcon from "./components/CategoryIcon";
 import { faqCategories, type FAQItem } from "./data/faqData";
+import logoUrl from "../Logo.png";
 
 function SearchIcon() {
   return (
@@ -88,6 +89,7 @@ function AccordionItem({ item, defaultOpen = false }: { item: FAQItem; defaultOp
 export default function App() {
   const categories = faqCategories;
   const [activeCategoryId, setActiveCategoryId] = useState(categories[0].id);
+  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(categories[0].id);
   const [searchQuery, setSearchQuery] = useState("");
 
   const activeCategory = categories.find((category) => category.id === activeCategoryId) ?? categories[0];
@@ -116,6 +118,15 @@ export default function App() {
       <div className="studio-orb-c" />
 
       <div className="relative z-10 mx-auto max-w-[1180px] px-4 pb-20 pt-8 sm:px-6 sm:pb-24 sm:pt-10 lg:px-8">
+        <header className="flex items-center justify-between pb-6 mb-8 border-b border-white/5">
+          <div className="flex items-center gap-2.5">
+            <img src={logoUrl} alt="Velocity Logo" className="h-8 w-8 object-contain" />
+            <span className="font-display text-[20px] font-semibold tracking-[-0.02em] text-white">
+              Velocity
+            </span>
+          </div>
+        </header>
+
         <section className="relative overflow-hidden px-2 pb-4 pt-2 text-center sm:px-4">
           <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.34em] text-[#88a6ad]">
             Help &amp; Support
@@ -173,38 +184,73 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="lg:hidden">
-                <label className="sr-only" htmlFor="mobile-category-picker">
-                  Select category
-                </label>
-                <div className="relative">
-                  <select
-                    id="mobile-category-picker"
-                    value={activeCategoryId}
-                    onChange={(event) => {
-                      setActiveCategoryId(event.target.value);
-                      setSearchQuery("");
-                    }}
-                    className="w-full appearance-none rounded-[18px] border border-white/8 bg-white/[0.04] px-4 py-3 pr-11 text-[13px] font-medium text-[#eaf4f6] outline-none transition focus:border-[#19d8e6]/40 focus:bg-white/[0.06]"
-                  >
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.label}
-                      </option>
-                    ))}
-                  </select>
-                  <svg
-                    className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8aa2a8]"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2.4}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="m6 9 6 6 6-6" />
-                  </svg>
-                </div>
+              <div className="lg:hidden space-y-3">
+                {categories.map((category) => {
+                  const isOpen = expandedCategoryId === category.id && !isSearching;
+
+                  return (
+                    <div key={category.id} className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setExpandedCategoryId(isOpen ? null : category.id);
+                          setActiveCategoryId(category.id);
+                          setSearchQuery("");
+                        }}
+                        className={`category-pill ${isOpen ? "category-pill-active" : "category-pill-idle"} flex w-full items-center justify-between`}
+                        style={{ minHeight: "48px" }}
+                        aria-expanded={isOpen}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`flex h-10 w-10 items-center justify-center rounded-[14px] border transition-colors duration-300 ${
+                              isOpen
+                                ? "border-[#19d8e6]/30 bg-[#19d8e6]/10 text-[#19d8e6]"
+                                : "border-white/8 bg-white/[0.03] text-[#c4d2d6]"
+                            }`}
+                          >
+                            <CategoryIcon icon={category.icon} className="h-[17px] w-[17px]" />
+                          </span>
+                          <span className="min-w-0 flex-1 text-left">
+                            <span className="block truncate text-[13px] font-semibold text-white">
+                              {category.label}
+                            </span>
+                            <span className="mt-0.5 block text-left text-[11px] text-[#7e9399]">
+                              {category.questions.length} entries
+                            </span>
+                          </span>
+                        </div>
+                        <span
+                          className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
+                            isOpen
+                              ? "border-[#19d8e6]/45 bg-[#19d8e6]/12 text-[#19d8e6] shadow-[0_0_18px_rgba(25,216,230,0.18)]"
+                              : "border-white/10 bg-white/[0.03] text-[#9db0b6]"
+                          }`}
+                        >
+                          <ChevronDown open={isOpen} />
+                        </span>
+                      </button>
+
+                      <div
+                        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+                          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                        }`}
+                      >
+                        <div className="overflow-hidden">
+                          <div className="pl-4 pr-1 py-2 space-y-3 border-l border-white/8 ml-5">
+                            {category.questions.map((item) => (
+                              <AccordionItem
+                                key={item.id}
+                                item={item}
+                                defaultOpen={false}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               <nav className="hidden gap-2 lg:flex lg:flex-col">
@@ -216,6 +262,7 @@ export default function App() {
                       key={category.id}
                       onClick={() => {
                         setActiveCategoryId(category.id);
+                        setExpandedCategoryId(category.id);
                         setSearchQuery("");
                       }}
                       className={`category-pill ${active ? "category-pill-active" : "category-pill-idle"}`}
@@ -261,7 +308,7 @@ export default function App() {
             </div>
           </aside>
 
-          <main className="space-y-4">
+          <main className={`${isSearching ? "block" : "hidden lg:block"} space-y-4`}>
             <div className="mb-1 flex items-center justify-center lg:justify-start">
               <h2 className="font-display text-[22px] font-semibold tracking-[-0.03em] text-white sm:text-[26px]">
                 {isSearching ? "Search Results" : activeCategory.label}
